@@ -1,4 +1,3 @@
-// eslint.config.mjs
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -29,10 +28,10 @@ export default defineConfig([
       "unused-imports": unusedImports,
     },
     rules: {
-      "prettier/prettier": "error",           // auto-fix de formatação
-      "unused-imports/no-unused-imports": "error", // remove imports não usados
+      "prettier/prettier": "error",          
+      "unused-imports/no-unused-imports": "error", 
       "@typescript-eslint/no-unused-vars": [
-        "error", // trocar para error bloqueia commit
+        "error", 
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
       ],
       "no-console": ["warn", { allow: ["warn", "error", "info"] }]
