@@ -10,11 +10,9 @@ import unusedImports from "eslint-plugin-unused-imports";
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default defineConfig([
-  // mantém as regras recomendadas do Next
   ...nextVitals,
   ...nextTs,
 
-  // regras customizadas
   {
     files: ["**/*.{ts,tsx,js,jsx}"],
     languageOptions: {
@@ -28,26 +26,25 @@ export default defineConfig([
     plugins: {
       "@typescript-eslint": tsPlugin,
       prettier: prettierPlugin,
-      "unused-imports": unusedImports
+      "unused-imports": unusedImports,
     },
     rules: {
-      "prettier/prettier": "error",
-      "unused-imports/no-unused-imports": "error",
+      "prettier/prettier": "error",           // auto-fix de formatação
+      "unused-imports/no-unused-imports": "error", // remove imports não usados
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error", // trocar para error bloqueia commit
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
       ],
       "no-console": ["warn", { allow: ["warn", "error", "info"] }]
     }
   },
 
-  // global ignores
   globalIgnores([
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
     "node_modules/**",
-    "dist/**"
-  ])
+    "dist/**",
+  ]),
 ]);
