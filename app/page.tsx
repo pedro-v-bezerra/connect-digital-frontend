@@ -1,9 +1,12 @@
-import React from 'react'
+'use client'
+import { PixChargeForm } from './components/PixChargeForm'
+import { Toaster } from './components/ui/toaster'
 
 export default function Page() {
   return (
-    <div className="bg-primary flex items-center justify-center rounded p-4 text-white hover:bg-red-600">
-      Teste
-    </div>
+    <>
+      <PixChargeForm />
+      <Toaster />
+    </>
   )
 }
