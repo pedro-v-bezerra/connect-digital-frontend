@@ -1,19 +1,21 @@
+'use client'
+
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
-import { Label } from '../components/ui/label'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../components/ui/card'
-import { useState } from 'react'
-import { PixResult } from './PixResult'
+} from './ui/card'
+import { OrderResult } from './OrderResult'
 import { toast } from '../hooks/use-toast'
+import { useOrders } from '../context/OrdersContext'
 
 const validateCPF = (cpf: string): boolean => {
   cpf = cpf.replace(/[^\d]/g, '')
@@ -84,15 +86,15 @@ interface PixData {
   pixKey: string
 }
 
-export const PixChargeForm = () => {
-  const [pixData, setPixData] = useState<PixData | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+export const OrderForm = () => {
+  const { order, loading, createOrder, clearOrder } = useOrders()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   })
@@ -129,23 +131,50 @@ export const PixChargeForm = () => {
     })
   }
 
-  const onSubmit = async () => {
-    setIsLoading(true)
+  const normalizePhoneForWhatsApp = (input: string): string => {
+    const digits = input.replace(/\D/g, '')
 
-    try {
-      // Aqui você fará a chamada para o backend
-      // Por enquanto, simulando uma resposta
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+    if (digits.length < 10) {
+      return digits
+    }
 
-      // Simulação de resposta do backend
-      const mockPixData: PixData = {
-        qrCode:
-          '00020126580014br.gov.bcb.pix0136a629532e-7693-4846-852d-1bbff6b2e6fa5204000053039865802BR5913NOME EMPRESA6009SAO PAULO62070503***63041D3D',
-        pixKey:
-          '00020126580014br.gov.bcb.pix0136a629532e-7693-4846-852d-1bbff6b2e6fa5204000053039865802BR5913NOME EMPRESA6009SAO PAULO62070503***63041D3D',
+    const ddd = digits.slice(0, 2)
+    let number = digits.slice(2)
+    const dddNum = parseInt(ddd, 10)
+
+    if (dddNum >= 11 && dddNum <= 27) {
+      if (number.length === 8) {
+        number = '9' + number
+      } else if (number.length > 9) {
+        number = number.slice(number.length - 9)
       }
+    } else if (dddNum > 27) {
+      if (number.length === 9 && number.startsWith('9')) {
+        number = number.slice(1)
+      } else if (number.length > 8) {
+        number = number.slice(number.length - 8)
+      }
+    }
 
-      setPixData(mockPixData)
+    return `55${ddd}${number}`
+  }
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      // converte reais em centavos
+      const cents = Number(data.productValue.replace(/\D/g, ''))
+      const normalizedPhone = normalizePhoneForWhatsApp(data.phone)
+
+      await createOrder({
+        customerName: data.customerName,
+        email: data.email,
+        cpf: data.cpf,
+        phone: normalizedPhone,
+        productName: data.productName,
+        amount: cents,
+        address: data.address,
+      })
+
       toast({
         title: 'Cobrança gerada com sucesso!',
         description: 'Use o QR Code ou a chave PIX para realizar o pagamento.',
@@ -157,13 +186,21 @@ export const PixChargeForm = () => {
         description: 'Não foi possível gerar a cobrança PIX. Tente novamente.',
         variant: 'destructive',
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  if (pixData) {
-    return <PixResult pixData={pixData} onBack={() => setPixData(null)} />
+  if (order?.pix) {
+    const pixData: PixData = {
+      qrCode: order.pix.copyPasteKey,
+      pixKey: order.pix.copyPasteKey,
+    }
+
+    const handleBack = () => {
+      clearOrder()
+      reset()
+    }
+
+    return <OrderResult pixData={pixData} onBack={handleBack} />
   }
 
   return (
@@ -309,9 +346,9 @@ export const PixChargeForm = () => {
             <Button
               type="submit"
               className="h-12 w-full text-base font-semibold"
-              disabled={isLoading}
+              disabled={loading}
             >
-              {isLoading ? 'Gerando cobrança...' : 'GERAR COBRANÇA'}
+              {loading ? 'Gerando cobrança...' : 'GERAR COBRANÇA'}
             </Button>
           </form>
         </CardContent>

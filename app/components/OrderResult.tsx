@@ -1,15 +1,19 @@
-import { Button } from '../components/ui/button'
+'use client'
+
+import { Button } from './ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../components/ui/card'
+} from './ui/card'
 import { QRCodeSVG } from 'qrcode.react'
 import { Copy, Check, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from '../hooks/use-toast'
+import { useOrders } from '../context/OrdersContext'
+import { PaymentSuccess } from './PaymentSuccess'
 
 interface PixResultProps {
   pixData: {
@@ -19,8 +23,13 @@ interface PixResultProps {
   onBack: () => void
 }
 
-export const PixResult = ({ pixData, onBack }: PixResultProps) => {
+export const OrderResult = ({ pixData, onBack }: PixResultProps) => {
   const [copied, setCopied] = useState(false)
+  const { order } = useOrders()
+
+  if (order?.status === 'paid') {
+    return <PaymentSuccess orderId={order.orderId} onBack={onBack} />
+  }
 
   const handleCopy = async () => {
     try {
@@ -44,6 +53,11 @@ export const PixResult = ({ pixData, onBack }: PixResultProps) => {
     }
   }
 
+  const statusLabel =
+    order?.status === 'canceled'
+      ? 'Pagamento cancelado ❌'
+      : 'Aguardando pagamento... ⏳'
+
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-lg">
@@ -56,6 +70,18 @@ export const PixResult = ({ pixData, onBack }: PixResultProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
+          <div className="flex flex-col items-center gap-2">
+            <span className="bg-muted rounded-full px-3 py-1 text-xs font-medium tracking-wide uppercase">
+              {statusLabel}
+            </span>
+            {order?.orderId && (
+              <p className="text-muted-foreground text-xs">
+                ID do pedido:{''}
+                <span className="font-mono">{order.orderId}</span>
+              </p>
+            )}
+          </div>
+
           <div className="flex justify-center">
             <div className="rounded-lg bg-white p-6 shadow-md">
               <QRCodeSVG
@@ -82,7 +108,6 @@ export const PixResult = ({ pixData, onBack }: PixResultProps) => {
             <Button
               onClick={handleCopy}
               className="h-12 w-full text-base font-semibold"
-              variant={copied ? 'default' : 'default'}
             >
               {copied ? (
                 <>
