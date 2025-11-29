@@ -5,7 +5,7 @@ import logo from '../../public/img/full-logo-connect.png'
 
 export function BrandBadge() {
   return (
-    <div className="fixed right-4 bottom-4 z-50">
+    <div className="fixed right-4 bottom-4 z-50 hidden md:block">
       <div className="inline-flex items-center justify-center rounded-sm bg-black/50 px-4 py-2 shadow-sm dark:bg-transparent">
         <Image
           src={logo}

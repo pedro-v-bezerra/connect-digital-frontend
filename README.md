@@ -71,7 +71,21 @@ Antes de iniciar o front-end, é necessário que o back-end esteja rodando.
 
    Siga as instruções do [README do back-end](https://github.com/pedro-v-bezerra/connect-digital-backend) e deixe a API rodando (por exemplo, em `http://localhost:3001`).
 
-2. **Configurar as variáveis de ambiente**
+2. **Clone o repositório**
+
+   Na pasta onde desejar:
+
+   ```bash
+   git clone https://github.com/pedro-v-bezerra/connect-digital-frontend.git
+   ```
+
+   Navegue para a pasta (os comando a seguir serão sempre nesse caminho)
+
+   ```bash
+   cd connect-digital-frontend
+   ```
+
+3. **Configurar as variáveis de ambiente**
 
    Na raiz do projeto, crie o arquivo `.env.local` (se ainda não existir):
 
@@ -81,28 +95,29 @@ Antes de iniciar o front-end, é necessário que o back-end esteja rodando.
 
    Certifique-se de que a URL e a porta correspondem à configuração do back-end.
 
-3. **Instalar as dependências do front-end**
+4. **Instalar as dependências do front-end**
 
-Na raiz do projeto:
+   Na raiz do projeto:
 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
-4. **Subir o servidor de desenvolvimento**
+5. **Subir o servidor de desenvolvimento**
+
    Ainda na raiz do projeto:
 
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
-5. **Acessar a aplicação**
+6. **Acessar a aplicação**
 
-No navegador acesse:
+   No navegador acesse:
 
-```text
-http://localhost:3000
-```
+   ```text
+   http://localhost:3000
+   ```
 
 A partir daí, o front-end irá consumir o back-end usando a URL definida em NEST_API_URL.
 
